@@ -13,11 +13,11 @@ window.onload = function () {
     var maze2String = "0,0 0,50 520,50 520,238 570,238 570,0 ";
 
     var game = new Phaser.Game(width, height, Phaser.CANVAS, 'stage', {
-            preload: preload,
-            create: create,
-            update: update,
-            render: render
-        });
+        preload: preload,
+        create: create,
+        update: update,
+        render: render
+    });
 
     function preload() {
         // Preload Sprites and other Assets
@@ -28,6 +28,7 @@ window.onload = function () {
     }
 
     var cursors;
+
     // Basically an initialization function
     function create() {
         game.physics.startSystem(Phaser.Physics.P2JS);
@@ -45,6 +46,7 @@ window.onload = function () {
 
     var mouseX, mouseY;
     var mousePositionText;
+
     function update() {
         if (gameState === "Menu") {
             showMenuScreen();
@@ -61,11 +63,12 @@ window.onload = function () {
 
     var guiGroup;
     var debugStats;
+
     function guiGroupSetup() {
         guiGroup = game.add.group();
 
         var debugText = "";
-        var debugTextStyle = { font: "14pt Consolas", fill: "#00FF00", align: "left" };
+        var debugTextStyle = {font: "14pt Consolas", fill: "#00FF00", align: "left"};
         debugStats = game.add.text(50, 50, debugText, debugTextStyle);
         debugStats.anchor.set(0.5);
         guiGroup.add(debugStats);
@@ -81,6 +84,7 @@ window.onload = function () {
     var player;
     var playerStartPosX = 600;
     var pVel = 35;
+
     function entityGroupSetup() {
         entityGroup = game.add.group();
 
@@ -112,6 +116,7 @@ window.onload = function () {
 
     var lastDirectionPressed;
     var playerLastMoved = 0;
+
     function movePlayer() {
         var doMove = false;
         // Movement for the player
@@ -151,6 +156,7 @@ window.onload = function () {
     var hallway, hallway2;
 
     var maze;
+
     function stageGroupSetup() {
         stageGroup = game.add.group();
         // Two hallway sprites will be used to simulate endless walking
@@ -236,7 +242,7 @@ window.onload = function () {
         // debugStats = game.add.text(50, 50, debugText, debugTextStyle);
         // debugStats.anchor.set(0.5);
         var gameOverText = "-GAME OVER-";
-        var gameOverTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center" };
+        var gameOverTextStyle = {font: "80pt Arial", fill: "#FF0000", align: "center"};
         var gameOver = game.add.text(game.world.centerX, game.world.centerY, gameOverText, gameOverTextStyle);
         gameOver.anchor.set(0.5);
         gameOverGroup.add(gameOver);
