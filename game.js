@@ -134,7 +134,6 @@ window.onload = function () {
             if (player.x <= backgroundMovementTriggerWidth) {
                 player.x += pVel;
             } else {
-                console.log("AS");
                 hallway.x -= pVel;
                 hallway2.x -= pVel;
                 creep.x -= cVel * 6;
