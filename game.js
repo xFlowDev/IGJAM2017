@@ -7,6 +7,13 @@ window.onload = function () {
 
     var gameState = "Playing";
 
+    var maze1String = "1194,1.7 1194,317 1078.5,317 1078.5,143.5 1063,143.5 1047.5,143.5 831,143.5 831,12.5 823,12.5 " +
+        "800,12.5 661,12.5 661,12.5 333,163.7 0,163.7 0,194.7 339.8,194.7 339.8,194.7 343,194.7 343,193.2 667.8,43.5 800,43.5 800,143.5 " +
+        "800,174.5 831,174.5 1047.5,174.5 1047.5,317 1047.5,317 1047.5,348 1078.5,348 1194,348 1209.5,348 1225,348 1225,32.7 " +
+        "1454.1,32.7 1298.4,176.7 1297.9,176.7 1297.9,207.7 1904,207.7 1904,176.7 1344,176.7 1499.8,32.7 1500.1,32.7 1500.1,1.7";
+
+    var maze2String = "0,0 0,50 520,50 520,238 570,238 570,0 ";
+
     var game = new Phaser.Game(width, height,
         Phaser.AUTO, '',
         {
@@ -21,18 +28,13 @@ window.onload = function () {
         game.load.image('hallway', 'assets/bg.jpg');
         game.load.spritesheet('creep', 'assets/creep.png', 260, 250, 6);
         game.load.spritesheet('player', 'assets/nerd.png', 200, 234, 9);
-        game.load.image('poster', 'assets/sign1.png');
-
-        // game.load.spritesheet('player', 'assets/player.png', x, y);
-        // game.load.image('circuit', 'assets/circuit_board.png');
-        // game.load.image('background', 'assets/background.png');
-
+        // game.load.image('maze', 'assets/maze1.png');
     }
 
     var cursors;
     // Basically an initialization function
     function create() {
-        game.stage.backgroundColor = 0xFFFFFF;
+        game.physics.startSystem(Phaser.Physics.P2JS);
 
         // This sets the display order of the Groups
         stageGroupSetup();
@@ -50,8 +52,7 @@ window.onload = function () {
     function update() {
         if (gameState === "Menu") {
             showMenuScreen();
-        }
-        else if (gameState === "Playing") {
+        } else if (gameState === "Playing") {
             showGameScreen();
         } else if (gameState === "GameOver") {
             showGameOverScreen();
@@ -88,14 +89,15 @@ window.onload = function () {
         entityGroup = game.add.group();
 
         creep = game.add.sprite(0, 15, 'creep');
-        creep.animations.add('walk');
+        creep.animations.add('walk', [0,1,2,3,4,5], 6, true);
         creep.scale.set(0.9);
         creep.y = hallway.height - creep.height;
         entityGroup.add(creep);
 
         player = game.add.sprite(playerStartPosX, 95, 'player');
-        player.animations.add('walk');
-        player.animations.play('walk', 7, true)
+        player.animations.add('walk', [0,1,2,3,4,5,6,7,8], 9, true);
+        player.animations.add('idle', [0], 9, true);
+        player.animations.play('idle');
         player.scale.set(0.75);
         player.y = hallway.height - player.height;
         entityGroup.add(player);
@@ -108,30 +110,49 @@ window.onload = function () {
         if (creep.x > width - creep.width) {
             creep.x = 0;
         }
-        creep.animations.play('walk', cVel, true);
+        creep.animations.play('walk');
     }
 
     var lastDirectionPressed;
+    var playerLastMoved = 0;
     function movePlayer() {
+        var doMove = false;
         // Movement for the player
         // When hitting left and right the player moves by pVel
         // It is only possible to use a key once, to reuse the key, the player has to hit the other key
-        if (cursors.right.isDown && lastDirectionPressed !== "right") {
-            player.x += pVel;
+        if (cursors.right.isDown && lastDirectionPressed !== "right" && !cursors.left.isDown) {
             lastDirectionPressed = "right";
-        } else if (cursors.left.isDown && lastDirectionPressed !== "left") {
-            player.x += pVel;
+            doMove = true;
+        } else if (cursors.left.isDown && lastDirectionPressed !== "left" && !cursors.right.isDown) {
             lastDirectionPressed = "left";
+            doMove = true;
+        }
+
+        if(doMove) {
+            if (player.x <= backgroundMovementTriggerWidth) {
+                player.x += pVel;
+            } else {
+                hallway.x -= pVel;
+                hallway2.x -= pVel;
+                creep.x -= cVel * 0.9;
+                resetHallwayPosition(hallway, hallway2);
+                resetHallwayPosition(hallway2, hallway);
+            }
+            playerLastMoved = game.time.totalElapsedSeconds();
+            player.animations.play('walk');
+        } else if(game.time.totalElapsedSeconds() - playerLastMoved > 0.25) {
+            player.animations.play('idle');
         }
     }
 
     function killPlayer() {
-        // player.animations.play('die', 10, true);
         gameState = "GameOver";
     }
 
     var stageGroup;
     var hallway, hallway2;
+
+    var maze;
     function stageGroupSetup() {
         stageGroup = game.add.group();
         // Two hallway sprites will be used to simulate endless walking
@@ -142,23 +163,20 @@ window.onload = function () {
         stageGroup.add(hallway);
         stageGroup.add(hallway2);
         backgroundMovementTriggerWidth = hallway.width * 0.6;
-    }
 
-    function moveBackground() {
-        if (cursors.right.isDown && lastDirectionPressed !== "right") {
-            lastDirectionPressed = "right";
-            hallway.x -= pVel;
-            hallway2.x -= pVel;
-            creep.x -= pVel * 0.9;
-        } else if (cursors.left.isDown && lastDirectionPressed !== "left") {
-            lastDirectionPressed = "left";
-            hallway.x -= pVel;
-            hallway2.x -= pVel;
-            creep.x -= pVel * 0.9;
+        // maze = game.add.sprite(0, hallway.height, 'maze');
+        // stageGroup.add(maze);
+        var mazePolygonPoints = getMazePolygonPoints(maze1String);
+        var mazePolyY = hallway.height + (hallway.height / 2);
+        maze = game.add.graphics(0, 600);
+        maze.beginFill(0xFFFFFF);
+        maze.moveTo(0, 0);
+        for (var i = 0; i < mazePolygonPoints.length; i++) {
+            var x = mazePolygonPoints[i].x;
+            var y = mazePolygonPoints[i].y;
+            maze.lineTo(x, y);
         }
-        resetHallwayPosition(hallway, hallway2);
-        resetHallwayPosition(hallway2, hallway);
-
+        maze.endFill();
     }
 
     function resetHallwayPosition(hallwayToReset, otherHallway) {
@@ -166,6 +184,19 @@ window.onload = function () {
             hallwayToReset.x = otherHallway.width + otherHallway.x;
         }
     }
+
+    function getMazePolygonPoints(svgMazePolygonPointsString) {
+        var mazePolygonPoints = svgMazePolygonPointsString.split(" ");
+        var phaserPoints = [];
+        for (var i = 0; i < mazePolygonPoints.length; i++) {
+            var point = mazePolygonPoints[i].split(",");
+            var x = parseInt(point[0]);
+            var y = parseInt(point[1]);
+            phaserPoints.push(new Phaser.Point(x, y));
+        }
+        return phaserPoints;
+    }
+
 
     function showMenuScreen() {
         // Create Menu here
@@ -182,22 +213,30 @@ window.onload = function () {
         // Ich muss unterscheiden ob ich den Spieler bewege oder den Background
         // Je nach dem wo der Spieler ist in der World, bewegt sich erst der Spieler
         // Und danach nur noch der Background
-        if (player.x <= backgroundMovementTriggerWidth) {
-            movePlayer();
-        } else {
-            moveBackground();
-        }
+        movePlayer();
 
-        if (creep.x + creep.width - 20 >= player.x) {
+        if (creep.x + creep.width - 100 >= player.x) {
             killPlayer();
         }
-
 
         // Mouse Cursor Stats
         mouseX = game.input.mousePointer.x;
         mouseY = game.input.mousePointer.y;
         mousePositionText = mouseX + "x" + mouseY;
         debugStats.text = mousePositionText;
+
+        // Check Mouse Position
+        // maze.inputEnabled = true;
+        // maze.events.onInputOver.add(inBounds, this);
+        // maze.events.onInputOut.add(outOffBounds, this);
+    }
+
+    function outOffBounds(item) {
+        console.log("Off Bounds");
+    }
+
+    function inBounds(item) {
+        console.log("In Bounds");
     }
 
     function showGameOverScreen() {
@@ -209,7 +248,7 @@ window.onload = function () {
         // debugStats = game.add.text(50, 50, debugText, debugTextStyle);
         // debugStats.anchor.set(0.5);
         var gameOverText = "-GAME OVER-";
-        var gameOverTextStyle = { font: "60pt Arial", fill: "#FF0000", align: "center" };
+        var gameOverTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center" };
         var gameOver = game.add.text(game.world.centerX, game.world.centerY, gameOverText, gameOverTextStyle);
         gameOver.anchor.set(0.5);
         gameOverGroup.add(gameOver);
