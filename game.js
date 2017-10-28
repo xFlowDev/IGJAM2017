@@ -172,6 +172,7 @@ window.onload = function () {
         maze = game.add.graphics(0, mazePolyY);
         maze.scale.set(0.7);
         maze.beginFill(0xFFFFFF);
+        maze.moveTo(mazePolygonPoints[0].x, mazePolygonPoints[0].y);
         for (var i = 0; i < mazePolygonPoints.length; i++) {
             var x = mazePolygonPoints[i].x;
             var y = mazePolygonPoints[i].y;
