@@ -72,7 +72,6 @@ window.onload = function () {
         debugStats = game.add.text(50, 50, debugText, debugTextStyle);
         debugStats.anchor.set(0.5);
         guiGroup.add(debugStats);
-
     }
 
     var entityGroup;
@@ -148,18 +147,11 @@ window.onload = function () {
         }
     }
 
-    function gameOver() {
-        gameState = "GameOver";
-    }
-
-    function killPlayer() {
-        gameOver();
-    }
-
     var stageGroup;
     var hallway, hallway2, cables;
 
     var maze;
+    var invisibleWinRectangle;
 
     function stageGroupSetup() {
         stageGroup = game.add.group();
@@ -224,7 +216,7 @@ window.onload = function () {
         movePlayer();
 
         if (creep.x + creep.width - 100 >= player.x) {
-            killPlayer();
+            gameOver();
         }
 
         // Mouse Cursor Stats
@@ -235,11 +227,18 @@ window.onload = function () {
 
         // Check Mouse Position
         maze.inputEnabled = true;
-        maze.events.onInputOut.add(outOffBounds, this);
+        maze.events.onInputOut.add(gameOver, this);
+
+        if(mouseX > width - 30 && mouseY > hallway.height)
+            win();
     }
 
-    function outOffBounds(item) {
-        gameOver();
+    function gameOver(item) {
+        gameState = "GameOver";
+    }
+
+    function win(){
+        gameState = "Win";
     }
 
     function showGameOverScreen() {
@@ -257,5 +256,9 @@ window.onload = function () {
         gameOverGroup.add(gameOver);
 
         // Add a retry Button
+    }
+
+    function showLevelComplete() {
+
     }
 }
