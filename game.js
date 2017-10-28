@@ -1,9 +1,7 @@
 //Phaser Test
 window.onload = function () {
-    var documentElement = document.documentElement;
-    var width = documentElement.clientWidth - 20;
-    var height = documentElement.clientHeight - 20;
-    var scaleFactor = 1;
+    var width = 1280;
+    var height = 720;
 
     var gameState = "Playing";
 
@@ -14,9 +12,7 @@ window.onload = function () {
 
     var maze2String = "0,0 0,50 520,50 520,238 570,238 570,0 ";
 
-    var game = new Phaser.Game(width, height,
-        Phaser.AUTO, '',
-        {
+    var game = new Phaser.Game(width, height, Phaser.CANVAS, 'stage', {
             preload: preload,
             create: create,
             update: update,
@@ -100,6 +96,7 @@ window.onload = function () {
         player.animations.play('idle');
         player.scale.set(0.75);
         player.y = hallway.height - player.height;
+        backgroundMovementTriggerWidth = width * 0.75 - player.width;
         entityGroup.add(player);
     }
 
@@ -163,13 +160,13 @@ window.onload = function () {
         hallway2 = game.add.sprite(hallway.width, 0, 'hallway');
         stageGroup.add(hallway);
         stageGroup.add(hallway2);
-        backgroundMovementTriggerWidth = hallway.width * 0.6;
 
         // maze = game.add.sprite(0, hallway.height, 'maze');
         // stageGroup.add(maze);
         var mazePolygonPoints = getMazePolygonPoints(maze1String);
-        var mazePolyY = hallway.height + (hallway.height / 2);
-        maze = game.add.graphics(0, 600);
+        var mazePolyY = hallway.height;
+        maze = game.add.graphics(0, mazePolyY);
+        maze.scale.set(0.7);
         maze.beginFill(0xFFFFFF);
         maze.moveTo(0, 0);
         for (var i = 0; i < mazePolygonPoints.length; i++) {
@@ -204,11 +201,6 @@ window.onload = function () {
     }
 
     function showGameScreen() {
-        // Scale the game to always fit the Screen
-        width = documentElement.clientWidth - 20;
-        height = documentElement.clientHeight - 20;
-        game.scale.setGameSize(width, height);
-
         moveCreep();
 
         // Ich muss unterscheiden ob ich den Spieler bewege oder den Background
