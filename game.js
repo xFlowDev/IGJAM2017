@@ -17,14 +17,15 @@ window.onload = function () {
 
     function preload() {
         // Preload Sprites and other Assets
-        //game.load.image('ground', 'assets/ground.png');
-        game.load.image('hallway', 'assets/hallway.png');
-        game.load.spritesheet('creep', 'assets/creep.png', 350, 350, 6);
+        game.load.image('hallway', 'assets/bg.jpg');
+        game.load.spritesheet('creep', 'assets/creep.png', 200, 192, 6);
+        game.load.spritesheet('player', 'assets/nerd.png', 200, 234, 9);
+        game.load.image('poster', 'assets/sign1.png');
 
-        game.load.image('player', 'assets/nerd.png');
         // game.load.spritesheet('player', 'assets/player.png', x, y);
         // game.load.image('circuit', 'assets/circuit_board.png');
         // game.load.image('background', 'assets/background.png');
+
     }
 
     var cursors;
@@ -51,7 +52,7 @@ window.onload = function () {
         height = documentElement.clientHeight - 20;
         game.scale.setGameSize(width, height);
 
-        //moveCreep();
+        moveCreep();
 
         // Ich muss unterscheiden ob ich den Spieler bewege oder den Background
         // Je nach dem wo der Spieler ist in der World, bewegt sich erst der Spieler
@@ -86,21 +87,25 @@ window.onload = function () {
     }
 
     var entityGroup;
+
     var creep;
     var cWalk;
     var cVel = 5;
 
     var player;
-    var pVel = 15;
+    var playerStartPosX = 450;
+    var pVel = 10;
     function entityGroupSetup() {
         entityGroup = game.add.group();
 
-        // creep = game.add.sprite(0, 0, 'creep');
-        // creep.animations.add('walk');
-        // creep.animations.play('walk', cVel, true);
-        // entityGroup.add(creep);
+        creep = game.add.sprite(0, 15, 'creep');
+        creep.animations.add('walk');
+        creep.animations.play('walk', cVel, true);
+        entityGroup.add(creep);
 
-        player = game.add.sprite(0, 95, 'player');
+        player = game.add.sprite(playerStartPosX, 95, 'player');
+        player.animations.add('walk');
+        player.animations.play('walk', pVel, true);
         entityGroup.add(player);
     }
 
@@ -128,13 +133,9 @@ window.onload = function () {
     }
 
     var stageGroup;
-    var ground;
     var hallway, hallway2;
     function stageGroupSetup() {
         stageGroup = game.add.group();
-
-        // ground = game.add.sprite(0, 400, 'ground');
-        // stageGroup.add(ground);
 
         // Two hallway sprites will be used to simulate endless walking
         // One will always be put behind the other.
@@ -143,7 +144,7 @@ window.onload = function () {
         hallway2 = game.add.sprite(hallway.width, 0, 'hallway');
         stageGroup.add(hallway);
         stageGroup.add(hallway2);
-        backgroundMovementTriggerWidth = hallway.width * 0.8
+        backgroundMovementTriggerWidth = hallway.width * 0.6;
     }
 
     function moveBackground() {
@@ -151,10 +152,12 @@ window.onload = function () {
             lastDirectionPressed = "right";
             hallway.x -= pVel;
             hallway2.x -= pVel;
+            creep.x -= pVel / 2;
         } else if (cursors.left.isDown && lastDirectionPressed !== "left") {
             lastDirectionPressed = "left";
             hallway.x -= pVel;
             hallway2.x -= pVel;
+            creep.x -= pVel * 0.7;            
         }
         resetHallwayPosition(hallway, hallway2);
         resetHallwayPosition(hallway2, hallway);
