@@ -17,17 +17,16 @@ window.onload = function () {
 
     function preload() {
         // Preload Sprites and other Assets
-        game.load.image('ground', 'assets/ground.png');
+        //game.load.image('ground', 'assets/ground.png');
+        game.load.image('hallway', 'assets/hallway.png');
         game.load.spritesheet('creep', 'assets/creep.png', 350, 350, 6);
 
-        game.load.image('player', 'assets/player.png');
+        game.load.image('player', 'assets/nerd.png');
         // game.load.spritesheet('player', 'assets/player.png', x, y);
         // game.load.image('circuit', 'assets/circuit_board.png');
         // game.load.image('background', 'assets/background.png');
     }
 
-
-    // I have to declare these objects so I can use them in the update function
     var cursors;
     // Basically an initialization function
     function create() {
@@ -41,7 +40,6 @@ window.onload = function () {
         cursors = game.input.keyboard.createCursorKeys();
     }
 
-    var cVel = 5;
 
     var mouseX, mouseY;
     var mousePositionText;
@@ -51,8 +49,16 @@ window.onload = function () {
         height = documentElement.clientHeight - 20;
         game.scale.setGameSize(width, height);
 
-        moveCreep();
+        //moveCreep();
 
+        // Ich muss unterscheiden ob ich den Spieler bewege oder den Background
+        // Je nach dem wo der Spieler ist in der World, bewegt sich erst der Spieler
+        // Und danach nur noch der Background
+        if (player.x < 400) {
+            movePlayer();
+        } else {
+            moveBackground();
+        }
         // Mouse Cursor Stats
         mouseX = game.input.mousePointer.x;
         mouseY = game.input.mousePointer.y;
@@ -80,21 +86,23 @@ window.onload = function () {
     var entityGroup;
     var creep;
     var cWalk;
+    var cVel = 5;
+
     var player;
+    var pVel = 15;
     function entityGroupSetup() {
         entityGroup = game.add.group();
 
-        creep = game.add.sprite(0, 0, 'creep');
-        creep.animations.add('walk');
-        creep.animations.play('walk', cVel, true);
-        entityGroup.add(creep);
+        // creep = game.add.sprite(0, 0, 'creep');
+        // creep.animations.add('walk');
+        // creep.animations.play('walk', cVel, true);
+        // entityGroup.add(creep);
 
-        player = game.add.sprite(width - 350, 0, 'player');
+        player = game.add.sprite(0, 95, 'player');
         entityGroup.add(player);
-
     }
 
-    function moveCreep(){
+    function moveCreep() {
         // Simple Creep Movement from left to right
         // If the creep goes further then the screen is wide it will reset
         creep.x += cVel;
@@ -103,12 +111,56 @@ window.onload = function () {
         }
     }
 
+    var lastDirectionPressed;
+    function movePlayer() {
+        // Movement for the player
+        // When hitting left and right the player moves by pVel
+        // It is only possible to use a key once, to reuse the key, the player has to hit the other key
+        if (cursors.right.isDown && lastDirectionPressed !== "right") {
+            lastDirectionPressed = "right";
+            player.x += pVel;
+        } else if (cursors.left.isDown && lastDirectionPressed !== "left") {
+            lastDirectionPressed = "left";
+            player.x += pVel;
+        }
+    }
+
     var stageGroup;
     var ground;
+    var hallway, hallway2;
     function stageGroupSetup() {
         stageGroup = game.add.group();
 
-        ground = game.add.sprite(0, 400, 'ground');
-        stageGroup.add(ground);
+        // ground = game.add.sprite(0, 400, 'ground');
+        // stageGroup.add(ground);
+
+        // Two hallway sprites will be used to simulate endless walking
+        // One will always be put behind the other.
+        // So that, as the player is complete on the second one the first one will put behind the other
+        hallway = game.add.sprite(0, 0, 'hallway');
+        hallway2 = game.add.sprite(hallway.width, 0, 'hallway');
+        stageGroup.add(hallway);
+        stageGroup.add(hallway2);
+    }
+
+    function moveBackground() {
+        if (cursors.right.isDown && lastDirectionPressed !== "right") {
+            lastDirectionPressed = "right";
+            hallway.x -= pVel;
+            hallway2.x -= pVel;
+        } else if (cursors.left.isDown && lastDirectionPressed !== "left") {
+            lastDirectionPressed = "left";
+            hallway.x -= pVel;
+            hallway2.x -= pVel;
+        }
+        resetHallwayPosition(hallway, hallway2);
+        resetHallwayPosition(hallway2, hallway);
+
+    }
+
+    function resetHallwayPosition(hallwayToReset, otherHallway) {
+        if (hallwayToReset.x < -hallwayToReset.width) {
+            hallwayToReset.x = otherHallway.width + otherHallway.x;
+        }
     }
 }
