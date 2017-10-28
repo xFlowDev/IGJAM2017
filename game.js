@@ -89,13 +89,13 @@ window.onload = function () {
         entityGroup = game.add.group();
 
         creep = game.add.sprite(0, 15, 'creep');
-        creep.animations.add('walk', [0,1,2,3,4,5], 6, true);
+        creep.animations.add('walk', [0, 1, 2, 3, 4, 5], 6, true);
         creep.scale.set(0.9);
         creep.y = hallway.height - creep.height;
         entityGroup.add(creep);
 
         player = game.add.sprite(playerStartPosX, 95, 'player');
-        player.animations.add('walk', [0,1,2,3,4,5,6,7,8], 9, true);
+        player.animations.add('walk', [0, 1, 2, 3, 4, 5, 6, 7, 8], 9, true);
         player.animations.add('idle', [0], 9, true);
         player.animations.play('idle');
         player.scale.set(0.75);
@@ -128,19 +128,20 @@ window.onload = function () {
             doMove = true;
         }
 
-        if(doMove) {
+        if (doMove) {
             if (player.x <= backgroundMovementTriggerWidth) {
                 player.x += pVel;
             } else {
+                console.log("AS");
                 hallway.x -= pVel;
                 hallway2.x -= pVel;
-                creep.x -= cVel * 0.9;
+                creep.x -= cVel * 6;
                 resetHallwayPosition(hallway, hallway2);
                 resetHallwayPosition(hallway2, hallway);
             }
             playerLastMoved = game.time.totalElapsedSeconds();
             player.animations.play('walk');
-        } else if(game.time.totalElapsedSeconds() - playerLastMoved > 0.25) {
+        } else if (game.time.totalElapsedSeconds() - playerLastMoved > 0.25) {
             player.animations.play('idle');
         }
     }
@@ -226,17 +227,12 @@ window.onload = function () {
         debugStats.text = mousePositionText;
 
         // Check Mouse Position
-        // maze.inputEnabled = true;
-        // maze.events.onInputOver.add(inBounds, this);
-        // maze.events.onInputOut.add(outOffBounds, this);
+        maze.inputEnabled = true;
+        maze.events.onInputOut.add(outOffBounds, this);
     }
 
     function outOffBounds(item) {
-        console.log("Off Bounds");
-    }
-
-    function inBounds(item) {
-        console.log("In Bounds");
+        gameState = "GameOver";
     }
 
     function showGameOverScreen() {
@@ -252,5 +248,7 @@ window.onload = function () {
         var gameOver = game.add.text(game.world.centerX, game.world.centerY, gameOverText, gameOverTextStyle);
         gameOver.anchor.set(0.5);
         gameOverGroup.add(gameOver);
+
+        // Add a retry Button
     }
 }
