@@ -197,7 +197,6 @@ window.onload = function () {
             var point = mazePolygonPoints[i].split(",");
             var x = parseInt(point[0]);
             var y = parseInt(point[1]);
-            console.log("x: " + x + " y: " + y);
             phaserPoints.push(new Phaser.Point(x, y));
         }
         return phaserPoints;
