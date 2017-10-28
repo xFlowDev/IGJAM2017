@@ -41,6 +41,8 @@ window.onload = function () {
     }
 
 
+    var backgroundMovementTriggerWidth;
+
     var mouseX, mouseY;
     var mousePositionText;
     function update() {
@@ -54,7 +56,7 @@ window.onload = function () {
         // Ich muss unterscheiden ob ich den Spieler bewege oder den Background
         // Je nach dem wo der Spieler ist in der World, bewegt sich erst der Spieler
         // Und danach nur noch der Background
-        if (player.x < 400) {
+        if (player.x <= backgroundMovementTriggerWidth) {
             movePlayer();
         } else {
             moveBackground();
@@ -141,6 +143,7 @@ window.onload = function () {
         hallway2 = game.add.sprite(hallway.width, 0, 'hallway');
         stageGroup.add(hallway);
         stageGroup.add(hallway2);
+        backgroundMovementTriggerWidth = hallway.width * 0.8
     }
 
     function moveBackground() {
