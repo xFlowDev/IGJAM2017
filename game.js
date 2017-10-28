@@ -148,8 +148,12 @@ window.onload = function () {
         }
     }
 
-    function killPlayer() {
+    function gameOver() {
         gameState = "GameOver";
+    }
+
+    function killPlayer() {
+        gameOver();
     }
 
     var stageGroup;
@@ -230,7 +234,7 @@ window.onload = function () {
     }
 
     function outOffBounds(item) {
-        gameState = "GameOver";
+        gameOver();
     }
 
     function showGameOverScreen() {
