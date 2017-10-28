@@ -167,7 +167,6 @@ window.onload = function () {
         // maze = game.add.sprite(0, hallway.height, 'maze');
         // stageGroup.add(maze);
         var mazePolygonPoints = getMazePolygonPoints(maze1String);
-        console.log(mazePolygonPoints);
         var mazePolyY = hallway.height;
         maze = game.add.graphics(0, mazePolyY);
         maze.scale.set(0.7);
