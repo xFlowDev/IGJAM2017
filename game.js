@@ -146,7 +146,7 @@ window.onload = function () {
     }
 
     function killPlayer() {
-        // gameState = "GameOver";
+        gameState = "GameOver";
     }
 
     var stageGroup;
