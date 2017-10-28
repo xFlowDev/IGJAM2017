@@ -13,18 +13,17 @@ window.onload = function () {
     var maze2String = "0,0 0,50 520,50 520,238 570,238 570,0 ";
 
     var game = new Phaser.Game(width, height, Phaser.CANVAS, 'stage', {
-            preload: preload,
-            create: create,
-            update: update,
-            render: render
-        });
+        preload: preload,
+        create: create,
+        update: update,
+        render: render
+    });
 
     function preload() {
         // Preload Sprites and other Assets
         game.load.image('hallway', 'assets/bg.jpg');
         game.load.spritesheet('creep', 'assets/creep.png', 260, 250, 6);
         game.load.spritesheet('player', 'assets/nerd.png', 200, 234, 9);
-        // game.load.image('maze', 'assets/maze1.png');
     }
 
     var cursors;
@@ -69,7 +68,6 @@ window.onload = function () {
         debugStats = game.add.text(50, 50, debugText, debugTextStyle);
         debugStats.anchor.set(0.5);
         guiGroup.add(debugStats);
-
     }
 
     var entityGroup;
@@ -129,7 +127,6 @@ window.onload = function () {
             if (player.x <= backgroundMovementTriggerWidth) {
                 player.x += pVel;
             } else {
-                console.log("AS");
                 hallway.x -= pVel;
                 hallway2.x -= pVel;
                 creep.x -= cVel * 6;
@@ -143,14 +140,12 @@ window.onload = function () {
         }
     }
 
-    function killPlayer() {
-        gameState = "GameOver";
-    }
-
     var stageGroup;
     var hallway, hallway2;
 
     var maze;
+    var invisibleWinRectangle;
+
     function stageGroupSetup() {
         stageGroup = game.add.group();
         // Two hallway sprites will be used to simulate endless walking
@@ -209,7 +204,7 @@ window.onload = function () {
         movePlayer();
 
         if (creep.x + creep.width - 100 >= player.x) {
-            killPlayer();
+            gameOver();
         }
 
         // Mouse Cursor Stats
@@ -220,11 +215,19 @@ window.onload = function () {
 
         // Check Mouse Position
         maze.inputEnabled = true;
-        maze.events.onInputOut.add(outOffBounds, this);
+        maze.events.onInputOut.add(gameOver, this);
+
+        if(mouseX > width - 30 && mouseY > hallway.height)
+            win();
     }
 
-    function outOffBounds(item) {
-        gameState = "GameOver";
+    function gameOver(item) {
+       gameState = "GameOver";
+    }
+
+    function win(){
+        gameState = "Win";
+        console.log("win");
     }
 
     function showGameOverScreen() {
@@ -242,5 +245,9 @@ window.onload = function () {
         gameOverGroup.add(gameOver);
 
         // Add a retry Button
+    }
+
+    function showLevelComplete() {
+
     }
 }
