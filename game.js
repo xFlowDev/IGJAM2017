@@ -5,12 +5,9 @@ window.onload = function () {
 
     var gameState = "Playing";
 
-    var maze1String = "1194,1.7 1194,317 1078.5,317 1078.5,143.5 1063,143.5 1047.5,143.5 831,143.5 831,12.5 823,12.5 " +
-        "800,12.5 661,12.5 661,12.5 333,163.7 0,163.7 0,194.7 339.8,194.7 339.8,194.7 343,194.7 343,193.2 667.8,43.5 800,43.5 800,143.5 " +
-        "800,174.5 831,174.5 1047.5,174.5 1047.5,317 1047.5,317 1047.5,348 1078.5,348 1194,348 1209.5,348 1225,348 1225,32.7 " +
-        "1454.1,32.7 1298.4,176.7 1297.9,176.7 1297.9,207.7 1904,207.7 1904,176.7 1344,176.7 1499.8,32.7 1500.1,32.7 1500.1,1.7";
+    var maze1String = "1904,215 1050,215 900,63 0,63 0,134 858,134 1011,286 1904,286";
 
-    var maze2String = "0,0 0,50 520,50 520,238 570,238 570,0 ";
+    var maze2String = "1904,71 1904,0 1004,0 859.5,126.6 0,126.6 0,207.6 858.1,207.6 1005.3,350 1904,350 1904,279 1079.9,279 974.5,171.9 1075.9,71";
 
     var game = new Phaser.Game(width, height, Phaser.CANVAS, 'stage', {
         preload: preload,
@@ -54,7 +51,7 @@ window.onload = function () {
             showGameScreen();
         } else if (gameState === "GameOver") {
             showGameOverScreen();
-        } else if (gameState === "Win"){
+        } else if (gameState === "Win") {
             showWinScreen();
         }
     }
@@ -70,7 +67,7 @@ window.onload = function () {
         guiGroup = game.add.group();
 
         var debugText = "";
-        var debugTextStyle = {font: "14pt Consolas", fill: "#00FF00", align: "left"};
+        var debugTextStyle = { font: "14pt Consolas", fill: "#00FF00", align: "left" };
         debugStats = game.add.text(50, 50, debugText, debugTextStyle);
         debugStats.anchor.set(0.5);
         guiGroup.add(debugStats);
@@ -170,11 +167,11 @@ window.onload = function () {
         // maze = game.add.sprite(0, hallway.height, 'maze');
         // stageGroup.add(maze);
         var mazePolygonPoints = getMazePolygonPoints(maze1String);
+        console.log(mazePolygonPoints);
         var mazePolyY = hallway.height;
         maze = game.add.graphics(0, mazePolyY);
         maze.scale.set(0.7);
         maze.beginFill(0xFFFFFF);
-        maze.moveTo(0, 0);
         for (var i = 0; i < mazePolygonPoints.length; i++) {
             var x = mazePolygonPoints[i].x;
             var y = mazePolygonPoints[i].y;
@@ -187,7 +184,7 @@ window.onload = function () {
         if (hallwayToReset.x < -hallwayToReset.width) {
             hallwayToReset.x = otherHallway.width + otherHallway.x;
         }
-        if(cables.x < ((cables.width + (0.25 * cables.width)) * -1)) {
+        if (cables.x < ((cables.width + (0.25 * cables.width)) * -1)) {
             cables.x = width + (0.25 * cables.width);
         }
     }
@@ -199,6 +196,7 @@ window.onload = function () {
             var point = mazePolygonPoints[i].split(",");
             var x = parseInt(point[0]);
             var y = parseInt(point[1]);
+            console.log("x: " + x + " y: " + y);
             phaserPoints.push(new Phaser.Point(x, y));
         }
         return phaserPoints;
@@ -231,7 +229,7 @@ window.onload = function () {
         maze.inputEnabled = true;
         maze.events.onInputOut.add(gameOver, this);
 
-        if(mouseX > width - 30 && mouseY > hallway.height)
+        if (mouseX > width - 30 && mouseY > hallway.height)
             win();
     }
 
@@ -239,7 +237,7 @@ window.onload = function () {
         gameState = "GameOver";
     }
 
-    function win(){
+    function win() {
         gameState = "Win";
     }
 
@@ -252,7 +250,7 @@ window.onload = function () {
         // debugStats = game.add.text(50, 50, debugText, debugTextStyle);
         // debugStats.anchor.set(0.5);
         var gameOverText = "-GAME OVER-";
-        var gameOverTextStyle = {font: "80pt Arial", fill: "#FF0000", align: "center"};
+        var gameOverTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center" };
         var gameOver = game.add.text(game.world.centerX, game.world.centerY, gameOverText, gameOverTextStyle);
         gameOver.anchor.set(0.5);
         gameOverGroup.add(gameOver);
@@ -264,7 +262,7 @@ window.onload = function () {
         game.world.removeAll();
         var gameWinGroup = game.add.group();
         var gameWinText = "-YOU WIN-";
-        var gameWinTextStyle = {font: "80pt Arial", fill: "#FF0000", align: "center"};
+        var gameWinTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center" };
         var winScreen = game.add.text(game.world.centerX, game.world.centerY, gameWinText, gameWinTextStyle);
         winScreen.anchor.set(0.5);
         gameWinGroup.add(winScreen);
