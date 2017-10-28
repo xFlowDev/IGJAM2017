@@ -24,6 +24,7 @@ window.onload = function () {
         game.load.image('hallway', 'assets/bg.jpg');
         game.load.spritesheet('creep', 'assets/creep.png', 260, 250, 6);
         game.load.spritesheet('player', 'assets/nerd.png', 200, 234, 9);
+        game.load.image('cables', 'assets/cables.png');
     }
 
     var cursors;
@@ -136,6 +137,7 @@ window.onload = function () {
             } else {
                 hallway.x -= pVel;
                 hallway2.x -= pVel;
+                cables.x -= pVel * 1.5;
                 creep.x -= cVel * 6;
                 resetHallwayPosition(hallway, hallway2);
                 resetHallwayPosition(hallway2, hallway);
@@ -148,7 +150,7 @@ window.onload = function () {
     }
 
     var stageGroup;
-    var hallway, hallway2;
+    var hallway, hallway2, cables;
 
     var maze;
     var invisibleWinRectangle;
@@ -160,8 +162,10 @@ window.onload = function () {
         // So that, as the player is complete on the second one the first one will put behind the other
         hallway = game.add.sprite(0, 0, 'hallway');
         hallway2 = game.add.sprite(hallway.width, 0, 'hallway');
+        cables = game.add.sprite(0, 0, 'cables');
         stageGroup.add(hallway);
         stageGroup.add(hallway2);
+        stageGroup.add(cables);
 
         // maze = game.add.sprite(0, hallway.height, 'maze');
         // stageGroup.add(maze);
@@ -182,6 +186,9 @@ window.onload = function () {
     function resetHallwayPosition(hallwayToReset, otherHallway) {
         if (hallwayToReset.x < -hallwayToReset.width) {
             hallwayToReset.x = otherHallway.width + otherHallway.x;
+        }
+        if(cables.x < ((cables.width + (0.25 * cables.width)) * -1)) {
+            cables.x = width + (0.25 * cables.width);
         }
     }
 
@@ -229,7 +236,7 @@ window.onload = function () {
     }
 
     function gameOver(item) {
-       gameState = "GameOver";
+        gameState = "GameOver";
     }
 
     function win(){
