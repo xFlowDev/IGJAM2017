@@ -20,6 +20,7 @@ window.onload = function () {
         game.load.image('ground', 'assets/ground.png');
         game.load.spritesheet('creep', 'assets/creep.png', 350, 350, 6);
 
+        game.load.image('player', 'assets/player.png');
         // game.load.spritesheet('player', 'assets/player.png', x, y);
         // game.load.image('circuit', 'assets/circuit_board.png');
         // game.load.image('background', 'assets/background.png');
@@ -27,19 +28,7 @@ window.onload = function () {
 
 
     // I have to declare these objects so I can use them in the update function
-    var stageGroup;
-    var ground;
-
-    var entityGroup;
-    var creep;
-    var cWalk;
-    var player;
-
-    var guiGroup;
-    var debugStats;
-
     var cursors;
-    
     // Basically an initialization function
     function create() {
         game.stage.backgroundColor = 0xFFFFFF;
@@ -52,7 +41,7 @@ window.onload = function () {
         cursors = game.input.keyboard.createCursorKeys();
     }
 
-    var cVel = 10;
+    var cVel = 5;
 
     var mouseX, mouseY;
     var mousePositionText;
@@ -62,12 +51,7 @@ window.onload = function () {
         height = documentElement.clientHeight - 20;
         game.scale.setGameSize(width, height);
 
-        // Simple Creep Movement from left to right
-        // If the creep goes further then the screen is wide it will reset
-        // creep.x += cVel;
-        // if (creep.x > width - creep.width) {
-        //     creep.x = 0;
-        // }
+        moveCreep();
 
         // Mouse Cursor Stats
         mouseX = game.input.mousePointer.x;
@@ -80,6 +64,8 @@ window.onload = function () {
         // game.debug.inputInfo(0, 500);
     }
 
+    var guiGroup;
+    var debugStats;
     function guiGroupSetup() {
         guiGroup = game.add.group();
 
@@ -91,24 +77,38 @@ window.onload = function () {
 
     }
 
-    function entityGroupSetup(){
+    var entityGroup;
+    var creep;
+    var cWalk;
+    var player;
+    function entityGroupSetup() {
         entityGroup = game.add.group();
 
         creep = game.add.sprite(0, 0, 'creep');
         creep.animations.add('walk');
-        creep.animations.play('walk', 10, true);
+        creep.animations.play('walk', cVel, true);
         entityGroup.add(creep);
+
+        player = game.add.sprite(width - 350, 0, 'player');
+        entityGroup.add(player);
+
     }
 
-    function stageGroupSetup(){
+    function moveCreep(){
+        // Simple Creep Movement from left to right
+        // If the creep goes further then the screen is wide it will reset
+        creep.x += cVel;
+        if (creep.x > width - creep.width) {
+            creep.x = 0;
+        }
+    }
+
+    var stageGroup;
+    var ground;
+    function stageGroupSetup() {
         stageGroup = game.add.group();
 
         ground = game.add.sprite(0, 400, 'ground');
         stageGroup.add(ground);
-    }
-
-    function configGroupSetup(){
-        configGroup = game.add.group();
-        
     }
 }
