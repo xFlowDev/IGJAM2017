@@ -89,14 +89,15 @@ window.onload = function () {
         entityGroup = game.add.group();
 
         creep = game.add.sprite(0, 15, 'creep');
-        creep.animations.add('walk');
+        creep.animations.add('walk', [0,1,2,3,4,5], 6, true);
         creep.scale.set(0.9);
         creep.y = hallway.height - creep.height;
         entityGroup.add(creep);
 
         player = game.add.sprite(playerStartPosX, 95, 'player');
-        player.animations.add('walk');
-        player.animations.play('walk', 7, true)
+        player.animations.add('walk', [0,1,2,3,4,5,6,7,8], 9, true);
+        player.animations.add('idle', [0], 9, true);
+        player.animations.play('idle');
         player.scale.set(0.75);
         player.y = hallway.height - player.height;
         entityGroup.add(player);
@@ -109,20 +110,38 @@ window.onload = function () {
         if (creep.x > width - creep.width) {
             creep.x = 0;
         }
-        creep.animations.play('walk', cVel, true);
+        creep.animations.play('walk');
     }
 
     var lastDirectionPressed;
+    var playerLastMoved = 0;
     function movePlayer() {
+        var doMove = false;
         // Movement for the player
         // When hitting left and right the player moves by pVel
         // It is only possible to use a key once, to reuse the key, the player has to hit the other key
         if (cursors.right.isDown && lastDirectionPressed !== "right" && !cursors.left.isDown) {
-            player.x += pVel;
             lastDirectionPressed = "right";
+            doMove = true;
         } else if (cursors.left.isDown && lastDirectionPressed !== "left" && !cursors.right.isDown) {
-            player.x += pVel;
             lastDirectionPressed = "left";
+            doMove = true;
+        }
+
+        if(doMove) {
+            if (player.x <= backgroundMovementTriggerWidth) {
+                player.x += pVel;
+            } else {
+                hallway.x -= pVel;
+                hallway2.x -= pVel;
+                creep.x -= cVel * 0.9;
+                resetHallwayPosition(hallway, hallway2);
+                resetHallwayPosition(hallway2, hallway);
+            }
+            playerLastMoved = game.time.totalElapsedSeconds();
+            player.animations.play('walk');
+        } else if(game.time.totalElapsedSeconds() - playerLastMoved > 0.25) {
+            player.animations.play('idle');
         }
     }
 
@@ -160,23 +179,6 @@ window.onload = function () {
         maze.endFill();
     }
 
-    function moveBackground() {
-        if (cursors.right.isDown && lastDirectionPressed !== "right" && !cursors.left.isDown) {
-            lastDirectionPressed = "right";
-            hallway.x -= pVel;
-            hallway2.x -= pVel;
-            creep.x -= pVel * 0.9;
-        } else if (cursors.left.isDown && lastDirectionPressed !== "left" && !cursors.right.isDown) {
-            lastDirectionPressed = "left";
-            hallway.x -= pVel;
-            hallway2.x -= pVel;
-            creep.x -= pVel * 0.9;
-        }
-        resetHallwayPosition(hallway, hallway2);
-        resetHallwayPosition(hallway2, hallway);
-
-    }
-
     function resetHallwayPosition(hallwayToReset, otherHallway) {
         if (hallwayToReset.x < -hallwayToReset.width) {
             hallwayToReset.x = otherHallway.width + otherHallway.x;
@@ -211,11 +213,7 @@ window.onload = function () {
         // Ich muss unterscheiden ob ich den Spieler bewege oder den Background
         // Je nach dem wo der Spieler ist in der World, bewegt sich erst der Spieler
         // Und danach nur noch der Background
-        if (player.x <= backgroundMovementTriggerWidth) {
-            movePlayer();
-        } else {
-            moveBackground();
-        }
+        movePlayer();
 
         if (creep.x + creep.width - 100 >= player.x) {
             killPlayer();
