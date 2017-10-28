@@ -53,6 +53,8 @@ window.onload = function () {
             showGameScreen();
         } else if (gameState === "GameOver") {
             showGameOverScreen();
+        } else if (gameState === "Win"){
+            showWinScreen();
         }
     }
 
@@ -251,7 +253,13 @@ window.onload = function () {
         // Add a retry Button
     }
 
-    function showLevelComplete() {
-
+    function showWinScreen() {
+        game.world.removeAll();
+        var gameWinGroup = game.add.group();
+        var gameWinText = "-YOU WIN-";
+        var gameWinTextStyle = {font: "80pt Arial", fill: "#FF0000", align: "center"};
+        var winScreen = game.add.text(game.world.centerX, game.world.centerY, gameWinText, gameWinTextStyle);
+        winScreen.anchor.set(0.5);
+        gameWinGroup.add(winScreen);
     }
 }
