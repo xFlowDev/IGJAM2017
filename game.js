@@ -29,21 +29,23 @@ window.onload = function () {
         game.load.audio('monsterLaugh', ['assets/monster-laugh.mp3', 'assets/monster-laugh.ogg']);
     }
 
-    var cursors;    
+    var cursors;
 
     // Basically an initialization function
     function create() {
         if (gameState === "Menu") {
-        menuGroupSetup();
+            menuGroupSetup();
         } else if (gameState === "Playing") {
-        stageGroupSetup();
-        entityGroupSetup();
-        guiGroupSetup();
+            game.world.removeAll();
+            stageGroupSetup();
+            entityGroupSetup();
+            guiGroupSetup();
+            game.sound.setDecodedCallback([monsterLaugh, mainTheme], playIntro);
         } else if (gameState === "GameOver") {
         } else if (gameState === "Win") {
         }
 
-
+        game.input.mouse.capture = true;
         cursors = game.input.keyboard.createCursorKeys();
     }
 
@@ -222,16 +224,16 @@ window.onload = function () {
 
         monsterLaugh = game.add.audio('monsterLaugh');
         mainTheme = game.add.audio('mainTheme');
-
-        game.sound.setDecodedCallback([ monsterLaugh, mainTheme ], playIntro);
     }
 
     function playIntro() {
         monsterLaugh.play();
         mainTheme.play();
-        game.add.tween(overlay).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true, 1500, 0, false);
-        setTimeout(function() {
+        game.add.tween(overlay).to({ alpha: 0 }, 500, Phaser.Easing.Linear.None, true, 1500, 0, false);
+        setTimeout(function () {
             introPlayed = true;
+            var mouseOnMazePos = worldPosToMazePos(game.input);
+            mouseLine.ctx.moveTo(mouseOnMazePos.x, mouseOnMazePos.y);
         }, 2000);
     }
 
@@ -240,7 +242,7 @@ window.onload = function () {
     }
 
     function drawOnMouseMove() {
-        if(isPlayable()) {
+        if (isPlayable()) {
             var mouseOnMazePos = worldPosToMazePos(game.input);
             mouseLine.ctx.lineTo(mouseOnMazePos.x, mouseOnMazePos.y);
             mouseLine.ctx.stroke();
@@ -278,12 +280,16 @@ window.onload = function () {
 
 
     function showMenuScreen() {
-        // if()
+        if (game.input.activePointer.leftButton.isDown) {
+            gameState = "Playing";
+            create();
+        }
     }
 
     var mazeStarted = false;
     function showGameScreen() {
-        gameTime += game.time.elapsed / 1000;
+        if (introPlayed)
+            gameTime += game.time.elapsed / 1000;
 
         if (creep.x + creep.width - 100 >= player.x) {
             gameOver();
@@ -298,7 +304,7 @@ window.onload = function () {
         var mouseOnMazePolyPos = worldPosToMazePos(game.input, true);
 
         // Check Mouse Position
-        if (mazePolygon.contains(mouseOnMazePolyPos.x, mouseOnMazePolyPos.y) && mouseX <= 30) {
+        if (mazePolygon.contains(mouseOnMazePolyPos.x, mouseOnMazePolyPos.y) && mouseX <= 30 && introPlayed) {
             if (!mazeStarted) {
                 mouseLine.ctx.moveTo(mouseOnMazePos.x, mouseOnMazePos.y);
             }
@@ -339,7 +345,7 @@ window.onload = function () {
         gameState = "Win";
     }
 
-    function getTextForElapsedTime(){
+    function getTextForElapsedTime() {
         var timeText = timeElapsed.toFixed(2).toString();
         var timeTextStyle = { font: "54pt Arial", fill: "#00FF00", align: "center" };
         var time = game.add.text(game.world.centerX, game.world.centerY + 100, timeText, timeTextStyle);
