@@ -148,7 +148,6 @@ window.onload = function () {
 
     var stageGroup;
     var hallway, hallway2, cables, maze, mouseLine;
-    var invisibleWinRectangle;
 
     function stageGroupSetup() {
         stageGroup = game.add.group();
@@ -252,7 +251,7 @@ window.onload = function () {
             win();
     }
 
-    function gameOver(item) {
+    function gameOver() {
         game.input.deleteMoveCallback(drawOnMouseMove);
         mouseLine.ctx.closePath();
         gameState = "GameOver";
