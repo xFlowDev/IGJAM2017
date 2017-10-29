@@ -85,16 +85,9 @@ window.onload = function () {
     }
 
     var guiGroup;
-    var debugStats;
     var time;
     function guiGroupSetup() {
         guiGroup = game.add.group();
-
-        var debugText = "";
-        var debugTextStyle = { font: "14pt Consolas", fill: "#00FF00", align: "left" };
-        debugStats = game.add.text(50, 450, debugText, debugTextStyle);
-        debugStats.anchor.set(0.5);
-        guiGroup.add(debugStats);
 
         var timeText = 0;
         var timeTextStyle = { font: "18pt Arial", fill: "#00FF00", align: "left" };
@@ -209,7 +202,7 @@ window.onload = function () {
         var mazePolyY = hallway.height;
         maze = game.add.graphics(0, mazePolyY);
         maze.scale.set(0.7);
-        maze.beginFill(0xFFFFFF);
+        maze.beginFill(0x00FF00);
         maze.drawPolygon(mazePolygon.points);
         maze.endFill();
 
@@ -299,7 +292,6 @@ window.onload = function () {
         mouseX = game.input.mousePointer.x;
         mouseY = game.input.mousePointer.y;
         mousePositionText = mouseX + "x" + mouseY;
-        debugStats.text = mousePositionText;
         var mouseOnMazePos = worldPosToMazePos(game.input);
         var mouseOnMazePolyPos = worldPosToMazePos(game.input, true);
 
@@ -345,9 +337,9 @@ window.onload = function () {
         gameState = "Win";
     }
 
-    function getTextForElapsedTime() {
-        var timeText = timeElapsed.toFixed(2).toString();
-        var timeTextStyle = { font: "54pt Arial", fill: "#00FF00", align: "center" };
+    function getTextForElapsedTime(addedText) {
+        var timeText = addedText + timeElapsed.toFixed(2).toString() + "s!";
+        var timeTextStyle = { font: "30pt Arial", fill: "#00FF00", align: "center" };
         var time = game.add.text(game.world.centerX, game.world.centerY + 100, timeText, timeTextStyle);
         time.anchor.set(0.5);
         return time;
@@ -359,11 +351,14 @@ window.onload = function () {
         var gameOverGroup = game.add.group();
 
         var gameOverText = "-GAME OVER-";
-        var gameOverTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center" };
-        var gameOver = game.add.text(game.world.centerX, game.world.centerY, gameOverText, gameOverTextStyle);
+        var gameOverTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center", fontStyle: "bold" };
+        var gameOver = game.add.text(game.world.centerX, game.world.centerY / 2, gameOverText, gameOverTextStyle);
         gameOver.anchor.set(0.5);
         gameOverGroup.add(gameOver);
-        var gameOverTime = getTextForElapsedTime();
+
+        var gameOverTime = getTextForElapsedTime("EATEN ALIVE AFTER ");
+        gameOverTime.setStyle({ font: "30pt Arial", fill: "#FF0000", align: "center", fontStyle: "bold" });
+        gameOverTime.y = height - height / 8;
         gameOverGroup.add(gameOverTime);
 
         // Add a retry Button
@@ -377,7 +372,7 @@ window.onload = function () {
         var winScreen = game.add.text(game.world.centerX, game.world.centerY, gameWinText, gameWinTextStyle);
         winScreen.anchor.set(0.5);
         gameWinGroup.add(winScreen);
-        var gameWinTime = getTextForElapsedTime();
+        var gameWinTime = getTextForElapsedTime("SERVER HACKED IN ");
         gameWinGroup.add(gameWinTime);
     }
 }
