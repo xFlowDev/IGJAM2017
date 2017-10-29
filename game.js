@@ -26,6 +26,7 @@ window.onload = function () {
         game.load.spritesheet('creepGameOver', 'assets/creep-gameover.png', 300, 242, 11);
         game.load.spritesheet('player', 'assets/nerd.png', 200, 234, 9);
         game.load.image('cables', 'assets/cables.png');
+        game.load.image('mazeBg', 'assets/bg-maze.jpg');
 
         game.load.audio('mainTheme', ['assets/main-theme.mp3', 'assets/main-theme.ogg']);
         game.load.audio('monsterLaugh', ['assets/monster-laugh.mp3', 'assets/monster-laugh.ogg']);
@@ -203,6 +204,7 @@ window.onload = function () {
         mazePolygon = new Phaser.Polygon(mazePolygonPoints);
         mazePolygon.flatten();
         var mazePolyY = hallway.height;
+        game.add.sprite(0, mazePolyY, 'mazeBg');
         maze = game.add.graphics(0, mazePolyY);
         maze.scale.set(0.7);
         maze.beginFill(0x00FF00);
