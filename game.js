@@ -1,4 +1,3 @@
-//Phaser Test
 window.onload = function () {
     var width = 1280;
     var height = 720;
@@ -18,6 +17,8 @@ window.onload = function () {
 
     function preload() {
         // Preload Sprites and other Assets
+        game.load.image('startScreen', 'assets/start-screen.jpg');
+
         game.load.image('hallway', 'assets/bg.jpg');
         game.load.spritesheet('creep', 'assets/creep.png', 260, 250, 6);
         game.load.spritesheet('player', 'assets/nerd.png', 200, 234, 9);
@@ -28,12 +29,16 @@ window.onload = function () {
 
     // Basically an initialization function
     function create() {
-        game.physics.startSystem(Phaser.Physics.P2JS);
-
-        // This sets the display order of the Groups
+        // if (gameState === "Menu") {
+        menuGroupSetup();
+        // } else if (gameState === "Playing") {
         stageGroupSetup();
         entityGroupSetup();
         guiGroupSetup();
+        // } else if (gameState === "GameOver") {
+        // } else if (gameState === "Win") {
+        // }
+
 
         cursors = game.input.keyboard.createCursorKeys();
     }
@@ -57,12 +62,18 @@ window.onload = function () {
     }
 
     function render() {
-        // game.debug.inputInfo(0, 500);
+    }
+
+    var startScreen;
+    function menuGroupSetup() {
+        menuGroup = game.add.group();
+        startScreen = game.add.sprite(0, 0, 'startScreen');
+        startScreen.width = width;
+        startScreen.height = height;
     }
 
     var guiGroup;
     var debugStats;
-
     function guiGroupSetup() {
         guiGroup = game.add.group();
 
@@ -150,6 +161,7 @@ window.onload = function () {
     var hallway, hallway2, cables;
 
     var maze;
+    var mazePolygon;
     var invisibleWinRectangle;
 
     function stageGroupSetup() {
@@ -167,16 +179,18 @@ window.onload = function () {
         // maze = game.add.sprite(0, hallway.height, 'maze');
         // stageGroup.add(maze);
         var mazePolygonPoints = getMazePolygonPoints(maze1String);
+        mazePolygon = new Phaser.Polygon(mazePolygonPoints);
         var mazePolyY = hallway.height;
         maze = game.add.graphics(0, mazePolyY);
         maze.scale.set(0.7);
         maze.beginFill(0xFFFFFF);
-        maze.moveTo(mazePolygonPoints[0].x, mazePolygonPoints[0].y);
-        for (var i = 0; i < mazePolygonPoints.length; i++) {
-            var x = mazePolygonPoints[i].x;
-            var y = mazePolygonPoints[i].y;
-            maze.lineTo(x, y);
-        }
+        maze.drawPolygon(mazePolygon.points);
+        // maze.moveTo(mazePolygonPoints[0].x, mazePolygonPoints[0].y);
+        // for (var i = 0; i < mazePolygonPoints.length; i++) {
+        //     var x = mazePolygonPoints[i].x;
+        //     var y = mazePolygonPoints[i].y;
+        //     maze.lineTo(x, y);
+        // }
         maze.endFill();
     }
 
@@ -204,18 +218,17 @@ window.onload = function () {
 
     function showMenuScreen() {
         // Create Menu here
+        // check if Start Button was pressed
+        // if(){
+
+        // }
     }
 
+    var mazeStarted = false;
     function showGameScreen() {
-        moveCreep();
-
-        // Ich muss unterscheiden ob ich den Spieler bewege oder den Background
-        // Je nach dem wo der Spieler ist in der World, bewegt sich erst der Spieler
-        // Und danach nur noch der Background
-        movePlayer();
 
         if (creep.x + creep.width - 100 >= player.x) {
-            gameOver();
+            //gameOver();
         }
 
         // Mouse Cursor Stats
@@ -223,13 +236,31 @@ window.onload = function () {
         mouseY = game.input.mousePointer.y;
         mousePositionText = mouseX + "x" + mouseY;
         debugStats.text = mousePositionText;
+        
+        console.log(mazePolygon.contains(mouseX, mouseY));
 
         // Check Mouse Position
-        maze.inputEnabled = true;
-        maze.events.onInputOut.add(gameOver, this);
+        // mazePolygon.inputEnabled = true;
+        if (mazePolygon.contains(mouseX, mouseY)) {
+            mazeStarted = true;
+            console.log("started");
+        }
 
-        if (mouseX > width - 30 && mouseY > hallway.height)
-            win();
+        if (mazeStarted) {
+            moveCreep();
+            movePlayer();
+            maze.events.onInputOut.add(gameOver, this);
+            if (mouseX > width - 30 && mouseY > hallway.height)
+                win();
+        }
+
+
+    }
+
+    function startMaze(item) {
+        if (mouseX <= 50 && mouseX > 0) {
+            console.log("started");
+        }
     }
 
     function gameOver(item) {
