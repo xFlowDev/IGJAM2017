@@ -19,9 +19,11 @@ window.onload = function () {
     function preload() {
         // Preload Sprites and other Assets
         game.load.image('startScreen', 'assets/start-screen.jpg');
+        game.load.image('gameOverBackground', 'assets/game-over.jpg');
 
         game.load.image('hallway', 'assets/bg.jpg');
         game.load.spritesheet('creep', 'assets/creep.png', 260, 250, 6);
+        game.load.spritesheet('creepGameOver', 'assets/creep-gameover.png', 300, 242, 11);
         game.load.spritesheet('player', 'assets/nerd.png', 200, 234, 9);
         game.load.image('cables', 'assets/cables.png');
 
@@ -42,6 +44,7 @@ window.onload = function () {
             guiGroupSetup();
             game.sound.setDecodedCallback([monsterLaugh, mainTheme], playIntro);
         } else if (gameState === "GameOver") {
+            gameOverGroupSetup();
         } else if (gameState === "Win") {
         }
 
@@ -219,6 +222,46 @@ window.onload = function () {
         mainTheme = game.add.audio('mainTheme');
     }
 
+    var creepGameOver;
+    var gameOverbackground;
+    function gameOverGroupSetup() {
+        game.world.removeAll();
+        var gameOverGroup = game.add.group();
+
+        var gameOverbackground = game.add.sprite(0, 0, 'gameOverBackground');
+        gameOverbackground.width = width;
+        gameOverbackground.height = height;
+        gameOverGroup.add(gameOverbackground);
+
+        // var gameOverText = "-GAME OVER-";
+        // var gameOverTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center", fontStyle: "bold" };
+        // var gameOver = game.add.text(game.world.centerX, game.world.centerY / 2, gameOverText, gameOverTextStyle);
+        // gameOver.anchor.set(0.5);
+        // gameOverGroup.add(gameOver);
+
+        var gameOverTime = getTextForElapsedTime("EATEN ALIVE AFTER ");
+        gameOverTime.setStyle({ font: "30pt Arial", fill: "#FF0000", align: "center", fontStyle: "bold" });
+        gameOverTime.y = height - height / 8;
+        gameOverGroup.add(gameOverTime);
+
+        creepGameOver = game.add.sprite(game.world.centerX - (300 * 0.7) / 2, game.world.centerY, 'creepGameOver');
+        creepGameOver.animations.add('gameover', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 11, true);
+        creepGameOver.scale.set(0.7);
+        gameOverGroup.add(creepGameOver);
+    }
+
+    function gameWinGroupSetup() {
+        game.world.removeAll();
+        var gameWinGroup = game.add.group();
+        var gameWinText = "-YOU WIN-";
+        var gameWinTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center" };
+        var winScreen = game.add.text(game.world.centerX, game.world.centerY, gameWinText, gameWinTextStyle);
+        winScreen.anchor.set(0.5);
+        gameWinGroup.add(winScreen);
+        var gameWinTime = getTextForElapsedTime("SERVER HACKED IN ");
+        gameWinGroup.add(gameWinTime);
+    }
+
     function playIntro() {
         monsterLaugh.play();
         mainTheme.play();
@@ -330,11 +373,13 @@ window.onload = function () {
         mainTheme.stop();
 
         gameState = "GameOver";
+        create();
     }
 
     function win() {
         timeElapsed = gameTime - startTime;
         gameState = "Win";
+        create();
     }
 
     function getTextForElapsedTime(addedText) {
@@ -346,33 +391,10 @@ window.onload = function () {
     }
 
     function showGameOverScreen() {
-        // Create Game Over Screen here
-        game.world.removeAll();
-        var gameOverGroup = game.add.group();
-
-        var gameOverText = "-GAME OVER-";
-        var gameOverTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center", fontStyle: "bold" };
-        var gameOver = game.add.text(game.world.centerX, game.world.centerY / 2, gameOverText, gameOverTextStyle);
-        gameOver.anchor.set(0.5);
-        gameOverGroup.add(gameOver);
-
-        var gameOverTime = getTextForElapsedTime("EATEN ALIVE AFTER ");
-        gameOverTime.setStyle({ font: "30pt Arial", fill: "#FF0000", align: "center", fontStyle: "bold" });
-        gameOverTime.y = height - height / 8;
-        gameOverGroup.add(gameOverTime);
-
-        // Add a retry Button
+        creepGameOver.animations.play('gameover');
     }
 
     function showWinScreen() {
-        game.world.removeAll();
-        var gameWinGroup = game.add.group();
-        var gameWinText = "-YOU WIN-";
-        var gameWinTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center" };
-        var winScreen = game.add.text(game.world.centerX, game.world.centerY, gameWinText, gameWinTextStyle);
-        winScreen.anchor.set(0.5);
-        gameWinGroup.add(winScreen);
-        var gameWinTime = getTextForElapsedTime("SERVER HACKED IN ");
-        gameWinGroup.add(gameWinTime);
+
     }
 }
