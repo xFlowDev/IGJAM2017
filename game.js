@@ -147,9 +147,7 @@ window.onload = function () {
     }
 
     var stageGroup;
-    var hallway, hallway2, cables;
-
-    var maze;
+    var hallway, hallway2, cables, maze, mouseLine;
     var invisibleWinRectangle;
 
     function stageGroupSetup() {
@@ -178,6 +176,28 @@ window.onload = function () {
             maze.lineTo(x, y);
         }
         maze.endFill();
+
+        mouseLine = game.make.bitmapData(maze.width, maze.height);
+        mouseLine.addToWorld(maze.x, maze.y);
+        mouseLine.ctx.beginPath();
+        mouseLine.ctx.lineWidth = 2;
+        mouseLine.ctx.strokeStyle = 'red';
+        var mouseOnMazePos = worldPosToMazePos(game.input);
+        mouseLine.ctx.moveTo(mouseOnMazePos.x, mouseOnMazePos.y);
+        game.input.addMoveCallback(drawOnMouseMove);
+    }
+
+    function drawOnMouseMove() {
+        var mouseOnMazePos = worldPosToMazePos(game.input);
+        mouseLine.ctx.lineTo(mouseOnMazePos.x, mouseOnMazePos.y);
+        mouseLine.ctx.stroke();
+    }
+
+    function worldPosToMazePos(pos) {
+        return {
+            'x': pos.x - maze.x,
+            'y': pos.y - maze.y
+        };
     }
 
     function resetHallwayPosition(hallwayToReset, otherHallway) {
@@ -233,6 +253,8 @@ window.onload = function () {
     }
 
     function gameOver(item) {
+        game.input.deleteMoveCallback(drawOnMouseMove);
+        mouseLine.ctx.closePath();
         gameState = "GameOver";
     }
 
