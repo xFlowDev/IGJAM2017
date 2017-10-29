@@ -201,8 +201,7 @@ window.onload = function () {
         stageGroup.add(cables);
 
         // Stage Config
-        // var mazePolygonPoints = getMazePolygonPoints(maze1String);
-        var mazePolygonPoints = getMazePolygonPoints(maze1String);
+        var mazePolygonPoints = getMazePolygonPoints(maze3String);
         mazePolygon = new Phaser.Polygon(mazePolygonPoints);
         mazePolygon.flatten();
         var mazePolyY = hallway.height;
@@ -394,7 +393,7 @@ window.onload = function () {
     }
 
     function getTextForElapsedTime(addedText) {
-        var timeText = addedText + timeElapsed.toFixed(2).toString() + "s!";
+        var timeText = addedText + timeElapsed.toFixed(2).toString() + "s";
         var timeTextStyle = { font: "30pt Arial", fill: "#00FF00", align: "center" };
         var time = game.add.text(game.world.centerX, game.world.centerY, timeText, timeTextStyle);
         time.anchor.set(0.5);
