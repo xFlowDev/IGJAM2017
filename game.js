@@ -48,6 +48,7 @@ window.onload = function () {
 
     var mouseX, mouseY;
     var mousePositionText;
+    var gameTime = 0;
 
     function update() {
         if (gameState === "Menu") {
@@ -158,12 +159,8 @@ window.onload = function () {
     }
 
     var stageGroup;
-    var hallway, hallway2, cables;
-
-    var maze;
+    var hallway, hallway2, cables, maze, mouseLine;
     var mazePolygon;
-    var invisibleWinRectangle;
-
     function stageGroupSetup() {
         stageGroup = game.add.group();
         // Two hallway sprites will be used to simulate endless walking
@@ -185,13 +182,29 @@ window.onload = function () {
         maze.scale.set(0.7);
         maze.beginFill(0xFFFFFF);
         maze.drawPolygon(mazePolygon.points);
-        // maze.moveTo(mazePolygonPoints[0].x, mazePolygonPoints[0].y);
-        // for (var i = 0; i < mazePolygonPoints.length; i++) {
-        //     var x = mazePolygonPoints[i].x;
-        //     var y = mazePolygonPoints[i].y;
-        //     maze.lineTo(x, y);
-        // }
         maze.endFill();
+
+        mouseLine = game.make.bitmapData(width, height - mazePolyY);
+        mouseLine.addToWorld(maze.x, maze.y);
+        mouseLine.ctx.beginPath();
+        mouseLine.ctx.lineWidth = 2;
+        mouseLine.ctx.strokeStyle = 'red';
+        var mouseOnMazePos = worldPosToMazePos(game.input);
+        mouseLine.ctx.moveTo(mouseOnMazePos.x, mouseOnMazePos.y);
+        game.input.addMoveCallback(drawOnMouseMove);
+    }
+
+    function drawOnMouseMove() {
+        var mouseOnMazePos = worldPosToMazePos(game.input);
+        mouseLine.ctx.lineTo(mouseOnMazePos.x, mouseOnMazePos.y);
+        mouseLine.ctx.stroke();
+    }
+
+    function worldPosToMazePos(pos) {
+        return {
+            'x': pos.x - maze.x,
+            'y': pos.y - maze.y
+        };
     }
 
     function resetHallwayPosition(hallwayToReset, otherHallway) {
@@ -226,7 +239,7 @@ window.onload = function () {
 
     var mazeStarted = false;
     function showGameScreen() {
-
+        gameTime += game.time.elapsed / 1000;
         if (creep.x + creep.width - 100 >= player.x) {
             //gameOver();
         }
@@ -236,20 +249,21 @@ window.onload = function () {
         mouseY = game.input.mousePointer.y;
         mousePositionText = mouseX + "x" + mouseY;
         debugStats.text = mousePositionText;
-        
-        console.log(mazePolygon.contains(mouseX, mouseY));
+        var mouseOnMazePos = worldPosToMazePos(game.input);
 
         // Check Mouse Position
         // mazePolygon.inputEnabled = true;
-        if (mazePolygon.contains(mouseX, mouseY)) {
+        if (mazePolygon.contains(mouseOnMazePos.x, mouseOnMazePos.y)) {
             mazeStarted = true;
-            console.log("started");
         }
 
         if (mazeStarted) {
             moveCreep();
             movePlayer();
-            maze.events.onInputOut.add(gameOver, this);
+            if (!mazePolygon.contains(mouseOnMazePos.x, mouseOnMazePos.y)) {
+                // gameOver();
+                console.log("game over", mouseOnMazePos, mazePolygon);
+            }
             if (mouseX > width - 30 && mouseY > hallway.height)
                 win();
         }
@@ -263,7 +277,9 @@ window.onload = function () {
         }
     }
 
-    function gameOver(item) {
+    function gameOver() {
+        game.input.deleteMoveCallback(drawOnMouseMove);
+        mouseLine.ctx.closePath();
         gameState = "GameOver";
     }
 
