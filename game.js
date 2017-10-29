@@ -5,8 +5,9 @@ window.onload = function () {
     var gameState = "Playing";
 
     var maze1String = "1904,215 1050,215 900,63 0,63 0,134 858,134 1011,286 1904,286";
-
     var maze2String = "1904,71 1904,0 1004,0 859.5,126.6 0,126.6 0,207.6 858.1,207.6 1005.3,350 1904,350 1904,279 1079.9,279 974.5,171.9 1075.9,71";
+    var maze3String = "1194,0 1194,275.3 1118.5,275.3 1118.5,141.8 871,141.8 871,10.8 661,10.8 333,162 0,162 0,233 343,233 667.8,81.8 800,81.8 800,212.8 1047.5,212.8 1047.5,346.3 1265,346.3 1265,71 1414,71 1414,105 1298.4,215 1297.9,215 1297.9,286 1904,286 1904,215 1404,215 1560.1,71 1560.1,0"
+
 
     var game = new Phaser.Game(width, height, Phaser.CANVAS, 'stage', {
         preload: preload,
@@ -49,6 +50,8 @@ window.onload = function () {
     var mouseX, mouseY;
     var mousePositionText;
     var gameTime = 0;
+    var startTime;
+    var timeElapsed;
 
     function update() {
         if (gameState === "Menu") {
@@ -75,14 +78,21 @@ window.onload = function () {
 
     var guiGroup;
     var debugStats;
+    var time;
     function guiGroupSetup() {
         guiGroup = game.add.group();
 
         var debugText = "";
         var debugTextStyle = { font: "14pt Consolas", fill: "#00FF00", align: "left" };
-        debugStats = game.add.text(50, 50, debugText, debugTextStyle);
+        debugStats = game.add.text(50, 450, debugText, debugTextStyle);
         debugStats.anchor.set(0.5);
         guiGroup.add(debugStats);
+
+        var timeText = 0;
+        var timeTextStyle = { font: "18pt Arial", fill: "#00FF00", align: "left" };
+        time = game.add.text(50, 50, timeText, timeTextStyle);
+        time.anchor.set(0.5);
+        guiGroup.add(time);
     }
 
     var entityGroup;
@@ -97,7 +107,7 @@ window.onload = function () {
     function entityGroupSetup() {
         entityGroup = game.add.group();
 
-        creep = game.add.sprite(0, 15, 'creep');
+        creep = game.add.sprite(-250, 15, 'creep');
         creep.animations.add('walk', [0, 1, 2, 3, 4, 5], 6, true);
         creep.scale.set(0.9);
         creep.y = hallway.height - creep.height;
@@ -172,9 +182,9 @@ window.onload = function () {
         stageGroup.add(hallway2);
         stageGroup.add(cables);
 
-        // maze = game.add.sprite(0, hallway.height, 'maze');
-        // stageGroup.add(maze);
-        var mazePolygonPoints = getMazePolygonPoints(maze1String);
+        // Stage Config
+        // var mazePolygonPoints = getMazePolygonPoints(maze1String);
+        var mazePolygonPoints = getMazePolygonPoints(maze3String);
         mazePolygon = new Phaser.Polygon(mazePolygonPoints);
         mazePolygon.flatten();
         var mazePolyY = hallway.height;
@@ -195,7 +205,7 @@ window.onload = function () {
     }
 
     function drawOnMouseMove() {
-        if(mazeStarted) {
+        if (mazeStarted) {
             var mouseOnMazePos = worldPosToMazePos(game.input);
             mouseLine.ctx.lineTo(mouseOnMazePos.x, mouseOnMazePos.y);
             mouseLine.ctx.stroke();
@@ -243,6 +253,7 @@ window.onload = function () {
     var mazeStarted = false;
     function showGameScreen() {
         gameTime += game.time.elapsed / 1000;
+
         if (creep.x + creep.width - 100 >= player.x) {
             gameOver();
         }
@@ -257,20 +268,26 @@ window.onload = function () {
 
         // Check Mouse Position
         if (mazePolygon.contains(mouseOnMazePolyPos.x, mouseOnMazePolyPos.y) && mouseX <= 30) {
-            if(!mazeStarted) {
+            if (!mazeStarted) {
                 mouseLine.ctx.moveTo(mouseOnMazePos.x, mouseOnMazePos.y);
             }
             mazeStarted = true;
+            startTime = gameTime;
         }
 
         if (mazeStarted) {
+            timeElapsed = gameTime - startTime;
+            time.text = timeElapsed.toFixed(2).toString();
             moveCreep();
             movePlayer();
             if (!mazePolygon.contains(mouseOnMazePolyPos.x, mouseOnMazePolyPos.y)) {
+                mazeStarted = false;
                 gameOver();
             }
-            if (mouseX > width - 30 && mouseY > hallway.height)
+            if (mouseX > width - 30 && mouseY > hallway.height) {
+                mazeStarted = false;
                 win();
+            }
         }
 
 
@@ -279,26 +296,40 @@ window.onload = function () {
     function gameOver() {
         game.input.deleteMoveCallback(drawOnMouseMove);
         mouseLine.ctx.closePath();
+
+        timeElapsed = gameTime - startTime;
+        console.log(timeElapsed.toFixed(2));
+
         gameState = "GameOver";
     }
 
     function win() {
+        timeElapsed = gameTime - startTime;
+        console.log(timeElapsed.toFixed(2));
+
         gameState = "Win";
+    }
+
+    function getTextForElapsedTime(){
+        var timeText = timeElapsed.toFixed(2).toString();
+        var timeTextStyle = { font: "54pt Arial", fill: "#00FF00", align: "center" };
+        var time = game.add.text(game.world.centerX, game.world.centerY + 100, timeText, timeTextStyle);
+        time.anchor.set(0.5);
+        return time;
     }
 
     function showGameOverScreen() {
         // Create Game Over Screen here
         game.world.removeAll();
         var gameOverGroup = game.add.group();
-        // var debugText = "";
-        // var debugTextStyle = { font: "14pt Consolas", fill: "#00FF00", align: "left" };
-        // debugStats = game.add.text(50, 50, debugText, debugTextStyle);
-        // debugStats.anchor.set(0.5);
+
         var gameOverText = "-GAME OVER-";
         var gameOverTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center" };
         var gameOver = game.add.text(game.world.centerX, game.world.centerY, gameOverText, gameOverTextStyle);
         gameOver.anchor.set(0.5);
         gameOverGroup.add(gameOver);
+        var gameOverTimeText = getTextForElapsedTime();
+        gameOverGroup.add(gameOverTime);
 
         // Add a retry Button
     }
@@ -311,5 +342,7 @@ window.onload = function () {
         var winScreen = game.add.text(game.world.centerX, game.world.centerY, gameWinText, gameWinTextStyle);
         winScreen.anchor.set(0.5);
         gameWinGroup.add(winScreen);
+        var gameWinTime = getTextForElapsedTime();
+        gameWinGroup.add(gameWinTime);
     }
 }
