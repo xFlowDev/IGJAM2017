@@ -2,7 +2,7 @@ window.onload = function () {
     var width = 1280;
     var height = 720;
 
-    var gameState = "Playing";
+    var gameState = "Menu";
 
     var maze1String = "1904,215 1050,215 900,63 0,63 0,134 858,134 1011,286 1904,286";
     var maze2String = "1904,71 1904,0 1004,0 859.5,126.6 0,126.6 0,207.6 858.1,207.6 1005.3,350 1904,350 1904,279 1079.9,279 974.5,171.9 1075.9,71";
@@ -26,19 +26,19 @@ window.onload = function () {
         game.load.image('cables', 'assets/cables.png');
     }
 
-    var cursors;
+    var cursors;    
 
     // Basically an initialization function
     function create() {
-        // if (gameState === "Menu") {
+        if (gameState === "Menu") {
         menuGroupSetup();
-        // } else if (gameState === "Playing") {
+        } else if (gameState === "Playing") {
         stageGroupSetup();
         entityGroupSetup();
         guiGroupSetup();
-        // } else if (gameState === "GameOver") {
-        // } else if (gameState === "Win") {
-        // }
+        } else if (gameState === "GameOver") {
+        } else if (gameState === "Win") {
+        }
 
 
         cursors = game.input.keyboard.createCursorKeys();
@@ -68,12 +68,15 @@ window.onload = function () {
     function render() {
     }
 
+    var menuGroup;
     var startScreen;
+    var startButton;
     function menuGroupSetup() {
         menuGroup = game.add.group();
         startScreen = game.add.sprite(0, 0, 'startScreen');
         startScreen.width = width;
         startScreen.height = height;
+        menuGroup.add(startScreen);
     }
 
     var guiGroup;
@@ -243,11 +246,7 @@ window.onload = function () {
 
 
     function showMenuScreen() {
-        // Create Menu here
-        // check if Start Button was pressed
-        // if(){
-
-        // }
+        // if()
     }
 
     var mazeStarted = false;
