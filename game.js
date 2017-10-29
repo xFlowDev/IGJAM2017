@@ -24,6 +24,9 @@ window.onload = function () {
         game.load.spritesheet('creep', 'assets/creep.png', 260, 250, 6);
         game.load.spritesheet('player', 'assets/nerd.png', 200, 234, 9);
         game.load.image('cables', 'assets/cables.png');
+
+        game.load.audio('mainTheme', ['assets/main-theme.mp3', 'assets/main-theme.ogg']);
+        game.load.audio('monsterLaugh', ['assets/monster-laugh.mp3', 'assets/monster-laugh.ogg']);
     }
 
     var cursors;
@@ -93,6 +96,14 @@ window.onload = function () {
         time = game.add.text(50, 50, timeText, timeTextStyle);
         time.anchor.set(0.5);
         guiGroup.add(time);
+
+        var bmd = game.add.bitmapData(width, height);
+        bmd.ctx.beginPath();
+        bmd.ctx.rect(0, 0, width, height);
+        bmd.ctx.fillStyle = '#000000';
+        bmd.ctx.fill();
+        overlay = game.add.sprite(0, 0, bmd);
+        overlay.alpha = 0.75;
     }
 
     var entityGroup;
@@ -170,6 +181,9 @@ window.onload = function () {
     var stageGroup;
     var hallway, hallway2, cables, maze, mouseLine;
     var mazePolygon;
+    var monsterLaugh, mainTheme;
+    var introPlayed;
+    var overlay;
     function stageGroupSetup() {
         stageGroup = game.add.group();
         // Two hallway sprites will be used to simulate endless walking
@@ -202,10 +216,28 @@ window.onload = function () {
         var mouseOnMazePos = worldPosToMazePos(game.input);
         mouseLine.ctx.moveTo(mouseOnMazePos.x, mouseOnMazePos.y);
         game.input.addMoveCallback(drawOnMouseMove);
+
+        monsterLaugh = game.add.audio('monsterLaugh');
+        mainTheme = game.add.audio('mainTheme');
+
+        game.sound.setDecodedCallback([ monsterLaugh, mainTheme ], playIntro);
+    }
+
+    function playIntro() {
+        monsterLaugh.play();
+        mainTheme.play();
+        game.add.tween(overlay).to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true, 1500, 0, false);
+        setTimeout(function() {
+            introPlayed = true;
+        }, 2000);
+    }
+
+    function isPlayable() {
+        return (gameState === 'Playing' && mazeStarted && introPlayed);
     }
 
     function drawOnMouseMove() {
-        if (mazeStarted) {
+        if(isPlayable()) {
             var mouseOnMazePos = worldPosToMazePos(game.input);
             mouseLine.ctx.lineTo(mouseOnMazePos.x, mouseOnMazePos.y);
             mouseLine.ctx.stroke();
@@ -275,7 +307,7 @@ window.onload = function () {
             startTime = gameTime;
         }
 
-        if (mazeStarted) {
+        if (isPlayable()) {
             timeElapsed = gameTime - startTime;
             time.text = timeElapsed.toFixed(2).toString();
             moveCreep();
@@ -298,15 +330,13 @@ window.onload = function () {
         mouseLine.ctx.closePath();
 
         timeElapsed = gameTime - startTime;
-        console.log(timeElapsed.toFixed(2));
+        mainTheme.stop();
 
         gameState = "GameOver";
     }
 
     function win() {
         timeElapsed = gameTime - startTime;
-        console.log(timeElapsed.toFixed(2));
-
         gameState = "Win";
     }
 
@@ -328,7 +358,7 @@ window.onload = function () {
         var gameOver = game.add.text(game.world.centerX, game.world.centerY, gameOverText, gameOverTextStyle);
         gameOver.anchor.set(0.5);
         gameOverGroup.add(gameOver);
-        var gameOverTimeText = getTextForElapsedTime();
+        var gameOverTime = getTextForElapsedTime();
         gameOverGroup.add(gameOverTime);
 
         // Add a retry Button
