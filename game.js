@@ -88,7 +88,6 @@ window.onload = function () {
     var entityGroup;
 
     var creep;
-    var cWalk;
     var cVel = 5;
 
     var player;
@@ -275,12 +274,6 @@ window.onload = function () {
         }
 
 
-    }
-
-    function startMaze(item) {
-        if (mouseX <= 50 && mouseX > 0) {
-            console.log("started");
-        }
     }
 
     function gameOver() {
