@@ -20,6 +20,7 @@ window.onload = function () {
         // Preload Sprites and other Assets
         game.load.image('startScreen', 'assets/start-screen.jpg');
         game.load.image('gameOverBackground', 'assets/game-over.jpg');
+        game.load.image('winBackground', 'assets/game-won.jpg');
 
         game.load.image('hallway', 'assets/bg.jpg');
         game.load.spritesheet('creep', 'assets/creep.png', 260, 250, 6);
@@ -46,6 +47,7 @@ window.onload = function () {
         } else if (gameState === "GameOver") {
             gameOverGroupSetup();
         } else if (gameState === "Win") {
+            gameWinGroupSetup();
         }
 
         game.input.mouse.capture = true;
@@ -199,7 +201,7 @@ window.onload = function () {
 
         // Stage Config
         // var mazePolygonPoints = getMazePolygonPoints(maze1String);
-        var mazePolygonPoints = getMazePolygonPoints(maze3String);
+        var mazePolygonPoints = getMazePolygonPoints(maze1String);
         mazePolygon = new Phaser.Polygon(mazePolygonPoints);
         mazePolygon.flatten();
         var mazePolyY = hallway.height;
@@ -223,7 +225,6 @@ window.onload = function () {
     }
 
     var creepGameOver;
-    var gameOverbackground;
     function gameOverGroupSetup() {
         game.world.removeAll();
         var gameOverGroup = game.add.group();
@@ -253,12 +254,20 @@ window.onload = function () {
     function gameWinGroupSetup() {
         game.world.removeAll();
         var gameWinGroup = game.add.group();
-        var gameWinText = "-YOU WIN-";
-        var gameWinTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center" };
-        var winScreen = game.add.text(game.world.centerX, game.world.centerY, gameWinText, gameWinTextStyle);
-        winScreen.anchor.set(0.5);
-        gameWinGroup.add(winScreen);
+
+        var winBackground = game.add.sprite(0, 0, 'winBackground');
+        winBackground.width = width;
+        winBackground.height = height;
+        gameWinGroup.add(winBackground);
+
+        // var gameWinText = "-YOU WIN-";
+        // var gameWinTextStyle = { font: "80pt Arial", fill: "#FF0000", align: "center" };
+        // var winScreen = game.add.text(game.world.centerX, game.world.centerY, gameWinText, gameWinTextStyle);
+        // winScreen.anchor.set(0.5);
+        // gameWinGroup.add(winScreen);
+
         var gameWinTime = getTextForElapsedTime("SERVER HACKED IN ");
+        gameWinTime.y = height - height / 8;
         gameWinGroup.add(gameWinTime);
     }
 
@@ -385,7 +394,7 @@ window.onload = function () {
     function getTextForElapsedTime(addedText) {
         var timeText = addedText + timeElapsed.toFixed(2).toString() + "s!";
         var timeTextStyle = { font: "30pt Arial", fill: "#00FF00", align: "center" };
-        var time = game.add.text(game.world.centerX, game.world.centerY + 100, timeText, timeTextStyle);
+        var time = game.add.text(game.world.centerX, game.world.centerY, timeText, timeTextStyle);
         time.anchor.set(0.5);
         return time;
     }
