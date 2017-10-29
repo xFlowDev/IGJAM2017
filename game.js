@@ -43,6 +43,7 @@ window.onload = function () {
 
     var mouseX, mouseY;
     var mousePositionText;
+    var gameTime = 0;
 
     function update() {
         if (gameState === "Menu") {
@@ -226,6 +227,8 @@ window.onload = function () {
     }
 
     function showGameScreen() {
+        gameTime += game.time.elapsed / 1000;
+
         moveCreep();
 
         // Ich muss unterscheiden ob ich den Spieler bewege oder den Background
